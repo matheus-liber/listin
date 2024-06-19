@@ -2,10 +2,11 @@ import "dart:io";
 
 import "package:drift/drift.dart";
 import "package:drift/native.dart";
-import "package:flutter_listin/listins/models/listin.dart";
 import "package:path_provider/path_provider.dart";
 import "package:path/path.dart" as path;
 import "package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart";
+
+import "../models/listin.dart";
 
 part 'database.g.dart';
 
@@ -26,12 +27,29 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> insertListin(Listin listin) async {
     ListinTableCompanion novaLinha = ListinTableCompanion(
-      name: Value(listin.name),
-      obs: Value(listin.obs),
-      dateCreate: Value(listin.dateCreate),
-      dateUpdate: Value(listin.dateUpdate)
-    );
+        name: Value(listin.name),
+        obs: Value(listin.obs),
+        dateCreate: Value(listin.dateCreate),
+        dateUpdate: Value(listin.dateUpdate));
     return await into(listinTable).insert(novaLinha);
+  }
+
+  Future<List<Listin>> getListins() async {
+    List<Listin> temp = [];
+
+    List<ListinTableData> listinData = await select(listinTable).get();
+
+    for (ListinTableData row in listinData) {
+      temp.add(Listin(
+        id: row.id.toString(),
+        name: row.name,
+        obs: row.obs,
+        dateCreate: row.dateCreate,
+        dateUpdate: row.dateUpdate,
+      ));
+    }
+
+    return temp;
   }
 }
 

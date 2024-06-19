@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_listin/authentication/models/mock_user.dart';
+import 'package:flutter_listin/listins/data/database.dart';
 import 'package:flutter_listin/listins/screens/widgets/home_drawer.dart';
 import 'package:flutter_listin/listins/screens/widgets/home_listin_item.dart';
 import '../models/listin.dart';
@@ -16,11 +17,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Listin> listListins = [];
+  late AppDatabase _appDatabase;
 
   @override
   void initState() {
-    // TODO: Ao implementar os Listins, adicionar o refresh aqui
+    _appDatabase = AppDatabase();
+    refresh();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _appDatabase.close();
+    super.dispose();
   }
 
   @override
@@ -77,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   showAddModal({Listin? listin}) {
-    showAddEditListinModal(context: context, onRefresh: refresh, model: listin);
+    showAddEditListinModal(context: context, onRefresh: refresh, model: listin, appDatabase: _appDatabase);
   }
 
   showOptionModal(Listin listin) {
@@ -95,18 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
   refresh() async {
     // Basta alimentar essa variável com Listins que, quando o método for
     // chamado, a tela sera reconstruída com os itens.
-    List<Listin> listaListins = [];
-
-    //TODO - CRUD Listin: remover código mockado.
-    listaListins.add(
-      Listin(
-        id: "L01",
-        name: "Feira do mês",
-        obs: "Para compras de reabastecimento mensais.",
-        dateCreate: DateTime.now(),
-        dateUpdate: DateTime.now(),
-      ),
-    );
+    List<Listin> listaListins = await _appDatabase.getListins();
 
     setState(() {
       listListins = listaListins;
