@@ -38,6 +38,31 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: HomeDrawer(user: widget.user),
       appBar: AppBar(
         title: const Text("Minhas listas"),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.sort),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem(
+                child: Text('Ordenar por nome'),
+                value: 'nome',
+              ),
+              const PopupMenuItem(
+                child: Text('Ordenar por data de alteração'),
+                value: 'data',
+              ),
+            ],
+            onSelected: (String result) {
+              switch (result) {
+                case 'name':
+                  //código
+                  break;
+                case 'date':
+                  //código
+                  break;
+              }
+            },
+          )
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -86,7 +111,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   showAddModal({Listin? listin}) {
-    showAddEditListinModal(context: context, onRefresh: refresh, model: listin, appDatabase: _appDatabase);
+    showAddEditListinModal(
+        context: context,
+        onRefresh: refresh,
+        model: listin,
+        appDatabase: _appDatabase);
   }
 
   showOptionModal(Listin listin) {
