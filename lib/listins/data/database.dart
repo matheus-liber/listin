@@ -34,23 +34,32 @@ class AppDatabase extends _$AppDatabase {
     return await into(listinTable).insert(novaLinha);
   }
 
-  Future<List<Listin>> getListins() async {
-    List<Listin> temp = [];
+  Future<List<Listin>> getListins({String orderBy = ''}) async {
+  List<Listin> temp = [];
 
-    List<ListinTableData> listinData = await select(listinTable).get();
+  final query = select(listinTable);
 
-    for (ListinTableData row in listinData) {
-      temp.add(Listin(
-        id: row.id.toString(),
-        name: row.name,
-        obs: row.obs,
-        dateCreate: row.dateCreate,
-        dateUpdate: row.dateUpdate,
-      ));
-    }
-
-    return temp;
+  if (orderBy == 'name') {
+    query.orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]);
+  } else if (orderBy == 'dateUpdate') {
+    query.orderBy([(t) => OrderingTerm(expression: t.dateUpdate, mode: OrderingMode.desc)]);
   }
+
+  List<ListinTableData> listinData = await query.get();
+
+  for (ListinTableData row in listinData) {
+    temp.add(Listin(
+      id: row.id.toString(),
+      name: row.name,
+      obs: row.obs,
+      dateCreate: row.dateCreate,
+      dateUpdate: row.dateUpdate,
+    ));
+  }
+
+  return temp;
+}
+
 }
 
 LazyDatabase _openConnection() {
