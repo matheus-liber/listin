@@ -34,32 +34,43 @@ class AppDatabase extends _$AppDatabase {
     return await into(listinTable).insert(novaLinha);
   }
 
+  Future<bool> updateListin(Listin listin) async {
+    return await update(listinTable).replace(ListinTableCompanion(
+        id: Value(int.parse(listin.id)),
+        name: Value(listin.name),
+        obs: Value(listin.obs),
+        dateCreate: Value(listin.dateCreate),
+        dateUpdate: Value(listin.dateUpdate)));
+  }
+
   Future<List<Listin>> getListins({String orderBy = ''}) async {
-  List<Listin> temp = [];
+    List<Listin> temp = [];
 
-  final query = select(listinTable);
+    final query = select(listinTable);
 
-  if (orderBy == 'name') {
-    query.orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]);
-  } else if (orderBy == 'dateUpdate') {
-    query.orderBy([(t) => OrderingTerm(expression: t.dateUpdate, mode: OrderingMode.desc)]);
+    if (orderBy == 'name') {
+      query.orderBy(
+          [(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]);
+    } else if (orderBy == 'dateUpdate') {
+      query.orderBy([
+        (t) => OrderingTerm(expression: t.dateUpdate, mode: OrderingMode.desc)
+      ]);
+    }
+
+    List<ListinTableData> listinData = await query.get();
+
+    for (ListinTableData row in listinData) {
+      temp.add(Listin(
+        id: row.id.toString(),
+        name: row.name,
+        obs: row.obs,
+        dateCreate: row.dateCreate,
+        dateUpdate: row.dateUpdate,
+      ));
+    }
+
+    return temp;
   }
-
-  List<ListinTableData> listinData = await query.get();
-
-  for (ListinTableData row in listinData) {
-    temp.add(Listin(
-      id: row.id.toString(),
-      name: row.name,
-      obs: row.obs,
-      dateCreate: row.dateCreate,
-      dateUpdate: row.dateUpdate,
-    ));
-  }
-
-  return temp;
-}
-
 }
 
 LazyDatabase _openConnection() {
