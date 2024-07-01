@@ -135,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void remove(Listin model) async {
-    // TODO - CRUD Listin: remover o Listin
+    _appDatabase.deleteListin(int.parse(model.id));
     refresh();
   }
 }
