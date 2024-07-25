@@ -38,31 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: HomeDrawer(user: widget.user),
       appBar: AppBar(
         title: const Text("Minhas listas"),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.sort),
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem(
-                child: Text('Ordenar por nome'),
-                value: 'name',
-              ),
-              const PopupMenuItem(
-                child: Text('Ordenar por data de alteração'),
-                value: 'dateUpdate',
-              ),
-            ],
-            onSelected: (String result) async {
-              switch (result) {
-                case 'name':
-                  await refresh(orderBy: 'name');
-                  break;
-                case 'dateUpdate':
-                  await refresh(orderBy: 'dateUpdate');
-                  break;
-              }
-            },
-          )
-        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -88,18 +63,22 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           : RefreshIndicator(
-              onRefresh: () => refresh(),
+              onRefresh: () {
+                return refresh();
+              },
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(32, 32, 32, 0),
-                child: ListView.builder(
-                  itemCount: listListins.length,
-                  itemBuilder: (context, index) {
-                    Listin listin = listListins[index];
-                    return HomeListinItem(
-                      listin: listin,
-                      showOptionModal: showOptionModal,
-                    );
-                  },
+                child: ListView(
+                  children: List.generate(
+                    listListins.length,
+                    (index) {
+                      Listin listin = listListins[index];
+                      return HomeListinItem(
+                        listin: listin,
+                        showOptionModal: showOptionModal,
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -108,10 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   showAddModal({Listin? listin}) {
     showAddEditListinModal(
-        context: context,
-        onRefresh: refresh,
-        model: listin,
-        appDatabase: _appDatabase);
+      context: context,
+      onRefresh: refresh,
+      model: listin,
+      appDatabase: _appDatabase,
+    );
   }
 
   showOptionModal(Listin listin) {
@@ -126,8 +106,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  refresh({String orderBy = ''}) async {
-    List<Listin> listaListins = await _appDatabase.getListins(orderBy: orderBy);
+  refresh() async {
+    // Basta alimentar essa variável com Listins que, quando o método for
+    // chamado, a tela sera reconstruída com os itens.
+    List<Listin> listaListins = await _appDatabase.getListins();
 
     setState(() {
       listListins = listaListins;
@@ -135,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void remove(Listin model) async {
-    _appDatabase.deleteListin(int.parse(model.id));
+    await _appDatabase.deleteListin(int.parse(model.id));
     refresh();
   }
 }
