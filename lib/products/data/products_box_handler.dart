@@ -12,7 +12,11 @@ class ProductsBoxHandler {
     return _box.close();
   }
 
-  insertProduct(Product product){
-    
+  Future<int> insertProduct(Product product) async{
+    return _box.add(product);
+  }
+
+  List<Product> getProducts() {
+    return _box.values.map((e) => e as Product).toList();
   }
 }
