@@ -19,4 +19,12 @@ class ProductsBoxHandler {
   List<Product> getProducts() {
     return _box.values.map((e) => e as Product).toList();
   }
+
+  Future<void> updateProduct(Product product) async{
+    return product.save();
+  }
+
+  Future<void> removeProduct(Product product) async {
+    return _box.delete(product.key);
+  }
 }
